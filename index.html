@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#9B9185">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="台股籌碼">
+<link rel="manifest" href="manifest.json">
+
+<title>台股籌碼分析 V1.2</title>
+
+<style>
+:root{
+    --bg:#F2EFEA;
+    --card:#FAF8F5;
+    --card2:#EAE5DE;
+    --text:#45423F;
+    --muted:#817B74;
+    --border:#D8D1C8;
+    --primary:#9B9185;
+    --primary-dark:#756C62;
+
+    /* 台股慣例：紅漲、綠跌 */
+    --up:#C85C5C;
+    --down:#568775;
+
+    --warning:#B28B5E;
+    --white:#FFFFFF;
+}
+
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Noto Sans TC",
+        "PingFang TC",
+        sans-serif;
+}
+
+button,
+input,
+select{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+.app{
+    max-width:760px;
+    margin:auto;
+    min-height:100vh;
+    padding-bottom:90px;
+}
+
+/* ---------- Header ---------- */
+
+.header{
+    padding:
+        calc(18px + env(safe-area-inset-top))
+        18px
+        12px;
+}
+
+.header-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.logo{
+    font-size:23px;
+    font-weight:800;
+}
+
+.version{
+    font-size:11px;
+    background:var(--card2);
+    padding:5px 9px;
+    border-radius:20px;
+    color:var(--muted);
+}
+
+/* ---------- Page ---------- */
+
+.page{
+    display:none;
+    padding:0 16px;
+}
+
+.page.active{
+    display:block;
+}
+
+/* ---------- Card ---------- */
+
+.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:18px;
+    margin-bottom:14px;
+    box-shadow:0 5px 20px rgba(70,60,50,.05);
+}
+
+.card-title{
+    font-size:17px;
+    font-weight:800;
+    margin-bottom:5px;
+}
+
+.card-subtitle{
+    color:var(--muted);
+    font-size:13px;
+}
+
+/* ---------- Search ---------- */
+
+.search-box{
+    display:flex;
+    gap:8px;
+}
+
+.search-box input{
+    min-width:0;
+    flex:1;
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:13px;
+    padding:14px;
+    outline:none;
+}
+
+.primary-btn{
+    border:0;
+    background:var(--primary);
+    color:white;
+    border-radius:13px;
+    padding:13px 17px;
+    font-weight:700;
+}
+
+.primary-btn:active{
+    transform:scale(.97);
+}
+
+/* ---------- Hero ---------- */
+
+.hero{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    min-height:160px;
+    background:
+        linear-gradient(
+            135deg,
+            #EEE9E2,
+            #FAF8F5
+        );
+}
+
+.hero-icon{
+    font-size:52px;
+}
+
+.hero h1{
+    margin:0 0 8px;
+    font-size:27px;
+}
+
+.hero p{
+    margin:0;
+    color:var(--muted);
+    line-height:1.6;
+}
+
+/* ---------- Section ---------- */
+
+.section-title{
+    font-size:18px;
+    font-weight:800;
+    margin:22px 2px 10px;
+}
+
+/* ---------- Quick condition ---------- */
+
+.condition-group{
+    margin-bottom:18px;
+}
+
+.condition-title{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:10px;
+    font-weight:800;
+}
+
+.condition-icon{
+    width:34px;
+    height:34px;
+    border-radius:11px;
+    background:var(--card2);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.condition-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+}
+
+.condition{
+    display:block;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:12px;
+    font-size:13px;
+    line-height:1.5;
+}
+
+.condition input{
+    margin-right:6px;
+}
+
+.condition-number{
+    width:65px;
+    border:1px solid var(--border);
+    border-radius:7px;
+    padding:5px;
+    margin-top:6px;
+}
+
+/* ---------- Select ---------- */
+
+.select-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+}
+
+select{
+    width:100%;
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:12px;
+    padding:12px;
+}
+
+/* ---------- Direction ---------- */
+
+.legend{
+    display:flex;
+    gap:18px;
+    font-size:13px;
+    margin-top:12px;
+}
+
+.up{
+    color:var(--up);
+    font-weight:800;
+}
+
+.down{
+    color:var(--down);
+    font-weight:800;
+}
+
+/* ---------- Result ---------- */
+
+.stock-result{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:16px;
+    margin-bottom:10px;
+}
+
+.stock-result:active{
+    transform:scale(.99);
+}
+
+.stock-main{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.stock-name{
+    font-weight:800;
+    font-size:16px;
+}
+
+.stock-code{
+    color:var(--muted);
+    font-size:12px;
+}
+
+.stock-price{
+    font-size:20px;
+    font-weight:800;
+    margin-top:5px;
+}
+
+.score{
+    margin-top:12px;
+    height:7px;
+    background:#DED8D0;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.score-fill{
+    height:100%;
+    background:var(--primary);
+}
+
+/* ---------- Stock ---------- */
+
+.stock-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+}
+
+.stock-title{
+    font-size:24px;
+    font-weight:800;
+}
+
+.price{
+    font-size:34px;
+    font-weight:900;
+    margin-top:8px;
+}
+
+.change{
+    font-size:16px;
+    font-weight:800;
+}
+
+/* ---------- Metrics ---------- */
+
+.metric-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.metric{
+    background:#F0ECE6;
+    border-radius:14px;
+    padding:13px;
+}
+
+.metric-label{
+    font-size:12px;
+    color:var(--muted);
+}
+
+.metric-value{
+    font-size:20px;
+    font-weight:800;
+    margin-top:4px;
+}
+
+/* ---------- Rows ---------- */
+
+.data-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:13px 0;
+    border-bottom:1px solid var(--border);
+}
+
+.data-row:last-child{
+    border-bottom:0;
+}
+
+/* ---------- Tabs ---------- */
+
+.tabs{
+    display:flex;
+    gap:7px;
+    overflow-x:auto;
+    margin-bottom:14px;
+}
+
+.tab{
+    white-space:nowrap;
+    border:1px solid var(--border);
+    background:var(--card);
+    border-radius:11px;
+    padding:10px 13px;
+    color:var(--muted);
+}
+
+.tab.active{
+    background:var(--primary);
+    color:white;
+    border-color:var(--primary);
+}
+
+/* ---------- Bottom navigation ---------- */
+
+.bottom-nav{
+    position:fixed;
+    z-index:20;
+    bottom:0;
+    left:50%;
+    transform:translateX(-50%);
+    width:min(760px,100%);
+    padding:
+        8px
+        12px
+        calc(8px + env(safe-area-inset-bottom));
+
+    background:rgba(250,248,245,.94);
+    backdrop-filter:blur(15px);
+    border-top:1px solid var(--border);
+
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:7px;
+}
+
+.bottom-btn{
+    border:0;
+    background:transparent;
+    padding:8px 5px;
+    border-radius:12px;
+    color:var(--muted);
+    font-size:12px;
+}
+
+.bottom-btn.active{
+    background:var(--card2);
+    color:var(--text);
+    font-weight:800;
+}
+
+/* ---------- Notice ---------- */
+
+.notice{
+    background:#EEE8DE;
+    border-radius:13px;
+    padding:12px;
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.6;
+}
+
+/* ---------- Responsive ---------- */
+
+@media(max-width:520px){
+
+    .condition-grid{
+        grid-template-columns:1fr;
+    }
+
+    .hero-icon{
+        font-size:42px;
+    }
+
+    .hero h1{
+        font-size:24px;
+    }
+
+    .metric-value{
+        font-size:18px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- ================= HEADER ================= -->
+
+<header class="header">
+    <div class="header-top">
+        <div class="logo">📈 台股籌碼分析</div>
+        <div class="version">V1.2</div>
+    </div>
+</header>
+
+
+<!-- ================= HOME ================= -->
+
+<section id="page-home" class="page active">
+
+    <div class="card">
+
+        <div class="card-title">
+            🔍 查詢個股
+        </div>
+
+        <div class="search-box">
+            <input
+                id="searchInput"
+                type="text"
+                placeholder="輸入股票代號，例如 2330"
+                inputmode="numeric"
+            >
+
+            <button
+                class="primary-btn"
+                onclick="searchStock()">
+                搜尋
+            </button>
+        </div>
+
+    </div>
+
+
+    <div
+        class="card hero"
+        onclick="goPage('quick')">
+
+        <div>
+
+            <h1>
+                🔎 快速選股
+            </h1>
+
+            <p>
+                用技術面、籌碼面<br>
+                與融資條件找股票
+            </p>
+
+            <button
+                class="primary-btn"
+                style="margin-top:15px"
+                onclick="event.stopPropagation();goPage('quick')">
+
+                立即選股 →
+            </button>
+
+        </div>
+
+        <div class="hero-icon">
+            🎯
+        </div>
+
+    </div>
+
+
+    <div class="section-title">
+        ⭐ 最近關注
+    </div>
+
+    <div
+        class="stock-result"
+        onclick="openStock('2330')">
+
+        <div class="stock-main">
+
+            <div>
+                <div class="stock-name">
+                    2330 台積電
+                </div>
+
+                <div class="stock-price">
+                    1,035
+                </div>
+            </div>
+
+            <div class="up">
+                +15<br>
+                +1.47% ▲
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div
+        class="stock-result"
+        onclick="openStock('2610')">
+
+        <div class="stock-main">
+
+            <div>
+                <div class="stock-name">
+                    2610 華航
+                </div>
+
+                <div class="stock-price">
+                    20.80
+                </div>
+            </div>
+
+            <div class="down">
+                -0.25<br>
+                -1.19% ▼
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="notice">
+
+        💡 V1.2 目前為操作原型。
+        顯示數據為示範資料，尚未連接即時行情。
+
+    </div>
+
+</section>
+
+
+
+<!-- ================= QUICK SELECT ================= -->
+
+<section id="page-quick" class="page">
+
+    <div class="section-title">
+        🔎 快速選股
+    </div>
+
+    <div class="card">
+
+        <div class="card-subtitle">
+            勾選你想使用的條件
+        </div>
+
+    </div>
+
+
+    <!-- 技術面 -->
+
+    <div class="card condition-group">
+
+        <div class="condition-title">
+
+            <div class="condition-icon">
+                📈
+            </div>
+
+            技術面
+
+        </div>
+
+
+        <div class="condition-grid">
+
+            <label class="condition">
+                <input
+                    type="checkbox"
+                    id="ma20"
+                    checked>
+                股價站上月線
+            </label>
+
+
+            <label class="condition">
+                <input
+                    type="checkbox"
+                    id="ma60"
+                    checked>
+                股價站上季線
+            </label>
+
+
+            <label class="condition">
+                <input type="checkbox">
+                月線站上季線
+            </label>
+
+
+            <label class="condition">
+                <input type="checkbox">
+                今日突破月線
+            </label>
+
+
+            <label class="condition">
+                <input type="checkbox">
+                今日突破季線
+            </label>
+
+
+            <label class="condition">
+                <input type="checkbox">
+                多頭排列
+            </label>
+
+        </div>
+
+    </div>
+
+
+    <!-- 籌碼面 -->
+
+    <div class="card condition-group">
+
+        <div class="condition-title">
+
+            <div class="condition-icon">
+                👥
+            </div>
+
+            籌碼面
+
+        </div>
+
+
+        <div class="condition-grid">
+
+            <label class="condition">
+
+                <input type="checkbox" checked>
+
+                大戶持股增加 ≥
+
+                <input
+                    class="condition-number"
+                    type="number"
+                    value="1"
+                    step="0.1">
+
+                %
+
+            </label>
+
+
+            <label class="condition">
+
+                <input type="checkbox">
+
+                散戶持股減少 ≥
+
+                <input
+                    class="condition-number"
+                    type="number"
+                    value="1"
+                    step="0.1">
+
+                %
+
+            </label>
+
+
+            <label class="condition">
+
+                <input type="checkbox">
+
+                外資持股增加 ≥
+
+                <input
+                    class="condition-number"
+                    type="number"
+                    value="0.5"
+                    step="0.1">
+
+                %
+
+            </label>
+
+
+            <label class="condition">
+
+                <input type="checkbox">
+
+                大戶持股比 ＞
+
+                <input
+                    class="condition-number"
+                    type="number"
+                    value="30">
+
+                %
+
+            </label>
+
+
+            <label class="condition">
+
+                <input type="checkbox">
+
+                散戶持股比 ＜
+
+                <input
+                    class="condition-number"
+                    type="number"
+                    value="15">
+
+                %
+
+            </label>
+
+        </div>
+
+    </div>
+
+
+    <!-- 融資 -->
+
+    <div class="card condition-group">
+
+        <div class="condition-title">
+
+            <div class="condition-icon">
+                💰
+            </div>
+
+            融資／融券
+
+        </div>
+
+
+        <div class="condition-grid">
+
+            <label class="condition">
+
+                <input type="checkbox">
+
+                融資餘額增加 ≥
+
+                <input
+                    class="condition-number"
+                    type="number"
+                    value="2">
+
+                %
+
+            </label>
+
+
+            <label class="condition">
+
+                <input type="checkbox">
+
+                融資使用率 ＜
+
+                <input
+                    class="condition-number"
+                    type="number"
+                    value="70">
+
+                %
+
+            </label>
+
+
+            <label class="condition">
+
+                <input
+                    type="checkbox"
+                    checked>
+
+                融資維持率 ＞
+
+                <input
+                    class="condition-number"
+                    type="number"
+                    value="150">
+
+                %
+
+            </label>
+
+
+            <label class="condition">
+
+                <input type="checkbox">
+
+                融券餘額增加
+
+            </label>
+
+        </div>
+
+    </div>
+
+
+    <!-- 篩選設定 -->
+
+    <div class="card">
+
+        <div class="card-title">
+            ⚙️ 篩選設定
+        </div>
+
+        <div class="select-row">
+
+            <select id="period">
+                <option value="4">近 4 週</option>
+                <option value="8">近 8 週</option>
+                <option value="12">近 12 週</option>
+            </select>
+
+
+            <select id="logic">
+                <option value="AND">AND：全部符合</option>
+                <option value="OR">OR：任一符合</option>
+            </select>
+
+        </div>
+
+
+        <button
+            class="primary-btn"
+            style="width:100%;margin-top:14px"
+            onclick="runScreening()">
+
+            🎯 開始選股
+
+        </button>
+
+
+        <div class="legend">
+
+            <span class="up">
+                🔴 ▲ 上漲／增加
+            </span>
+
+            <span class="down">
+                🟢 ▼ 下跌／減少
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ================= RESULTS ================= -->
+
+<section id="page-results" class="page">
+
+    <div class="section-title">
+        🎯 選股結果
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+            篩選條件
+        </div>
+
+        <div class="card-subtitle" id="resultSummary">
+            近 4 週・AND
+        </div>
+
+    </div>
+
+
+    <div
+        class="stock-result"
+        onclick="openStock('2330')">
+
+        <div class="stock-main">
+
+            <div>
+
+                <div class="stock-code">
+                    2330
+                </div>
+
+                <div class="stock-name">
+                    台積電
+                </div>
+
+                <div class="stock-price">
+                    1,035
+                </div>
+
+            </div>
+
+            <div class="up">
+                +1.47% ▲
+            </div>
+
+        </div>
+
+
+        <div class="score">
+            <div
+                class="score-fill"
+                style="width:100%">
+            </div>
+        </div>
+
+        <div
+            class="card-subtitle"
+            style="margin-top:8px">
+
+            符合 5 / 5 項條件
+
+        </div>
+
+    </div>
+
+
+
+    <div
+        class="stock-result"
+        onclick="openStock('2454')">
+
+        <div class="stock-main">
+
+            <div>
+
+                <div class="stock-code">
+                    2454
+                </div>
+
+                <div class="stock-name">
+                    聯發科
+                </div>
+
+                <div class="stock-price">
+                    1,215
+                </div>
+
+            </div>
+
+            <div class="up">
+                +2.10% ▲
+            </div>
+
+        </div>
+
+
+        <div class="score">
+            <div
+                class="score-fill"
+                style="width:100%">
+            </div>
+        </div>
+
+        <div
+            class="card-subtitle"
+            style="margin-top:8px">
+
+            符合 5 / 5 項條件
+
+        </div>
+
+    </div>
+
+
+
+    <div
+        class="stock-result"
+        onclick="openStock('2610')">
+
+        <div class="stock-main">
+
+            <div>
+
+                <div class="stock-code">
+                    2610
+                </div>
+
+                <div class="stock-name">
+                    華航
+                </div>
+
+                <div class="stock-price">
+                    20.80
+                </div>
+
+            </div>
+
+            <div class="down">
+                -1.19% ▼
+            </div>
+
+        </div>
+
+
+        <div class="score">
+            <div
+                class="score-fill"
+                style="width:80%">
+            </div>
+        </div>
+
+        <div
+            class="card-subtitle"
+            style="margin-top:8px">
+
+            符合 4 / 5 項條件
+
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<!-- ================= STOCK ================= -->
+
+<section id="page-stock" class="page">
+
+    <div class="card">
+
+        <div class="stock-head">
+
+            <div>
+
+                <div
+                    class="card-subtitle"
+                    id="stockCode">
+
+                    2330
+
+                </div>
+
+                <div
+                    class="stock-title"
+                    id="stockName">
+
+                    台積電
+
+                </div>
+
+                <div
+                    class="price"
+                    id="stockPrice">
+
+                    1,035
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="change up"
+                id="stockChange">
+
+                +15<br>
+                +1.47% ▲
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- 技術面 -->
+
+    <div class="card">
+
+        <div class="card-title">
+            📈 技術面
+        </div>
+
+
+        <div class="data-row">
+            <span>5 日線</span>
+            <b>1,018</b>
+        </div>
+
+
+        <div class="data-row">
+            <span>月線</span>
+            <b>990</b>
+        </div>
+
+
+        <div class="data-row">
+            <span>季線</span>
+            <b>936</b>
+        </div>
+
+
+        <div
+            class="up"
+            style="margin-top:12px">
+
+            股價 ＞ 月線 ＞ 季線
+            <br>
+            多頭結構 ▲
+
+        </div>
+
+    </div>
+
+
+
+    <!-- 籌碼 -->
+
+    <div class="card">
+
+        <div class="card-title">
+            👥 籌碼結構
+        </div>
+
+
+        <div class="metric-grid">
+
+            <div class="metric">
+
+                <div class="metric-label">
+                    大戶持股比
+                </div>
+
+                <div class="metric-value">
+                    41.23%
+                </div>
+
+            </div>
+
+
+            <div class="metric">
+
+                <div class="metric-label">
+                    外資持股比
+                </div>
+
+                <div class="metric-value">
+                    32.18%
+                </div>
+
+            </div>
+
+
+            <div class="metric">
+
+                <div class="metric-label">
+                    散戶持股比
+                </div>
+
+                <div class="metric-value">
+                    10.97%
+                </div>
+
+            </div>
+
+
+            <div class="metric">
+
+                <div class="metric-label">
+                    中實戶
+                </div>
+
+                <div class="metric-value">
+                    15.62%
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- 每週變化 -->
+
+    <div class="card">
+
+        <div class="card-title">
+            📊 近 4 週籌碼變化
+        </div>
+
+
+        <div class="data-row">
+
+            <span>
+                大戶持股
+            </span>
+
+            <span class="up">
+                +289,456 股 ▲
+            </span>
+
+        </div>
+
+
+        <div class="data-row">
+
+            <span>
+                散戶持股
+            </span>
+
+            <span class="down">
+                -265,112 股 ▼
+            </span>
+
+        </div>
+
+
+        <div class="data-row">
+
+            <span>
+                外資持股
+            </span>
+
+            <span class="up">
+                增加 ▲
+            </span>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- 融資 -->
+
+    <div class="card">
+
+        <div class="card-title">
+            💰 融資／融券
+        </div>
+
+
+        <div class="data-row">
+
+            <span>
+                融資餘額
+            </span>
+
+            <b>
+                2,081,345 張
+            </b>
+
+        </div>
+
+
+        <div class="data-row">
+
+            <span>
+                融資使用率
+            </span>
+
+            <b>
+                68.2%
+            </b>
+
+        </div>
+
+
+        <div class="data-row">
+
+            <span>
+                融資維持率
+            </span>
+
+            <span class="up">
+                186% 正常
+            </span>
+
+        </div>
+
+
+        <div class="notice" style="margin-top:12px">
+
+            ※ 目前維持率為「估算值」示意。
+            真正個人帳戶維持率仍取決於融資金額、
+            擔保品及其他抵繳品。
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ================= BOTTOM NAV ================= -->
+
+<nav class="bottom-nav">
+
+    <button
+        class="bottom-btn active"
+        id="nav-home"
+        onclick="goPage('home')">
+
+        🏠<br>
+        首頁
+
+    </button>
+
+
+    <button
+        class="bottom-btn"
+        id="nav-quick"
+        onclick="goPage('quick')">
+
+        🎯<br>
+        快速選股
+
+    </button>
+
+
+    <button
+        class="bottom-btn"
+        id="nav-stock"
+        onclick="openStock('2330')">
+
+        📊<br>
+        個股
+
+    </button>
+
+</nav>
+
+
+<script>
+
+/* =====================================
+   頁面管理
+===================================== */
+
+const pages = [
+    "home",
+    "quick",
+    "results",
+    "stock"
+];
+
+
+function goPage(page){
+
+    pages.forEach(name => {
+
+        const el =
+            document.getElementById(
+                "page-" + name
+            );
+
+        if(el){
+
+            el.classList.toggle(
+                "active",
+                name === page
+            );
+
+        }
+
+    });
+
+
+    document
+        .querySelectorAll(".bottom-btn")
+        .forEach(btn =>
+            btn.classList.remove("active")
+        );
+
+
+    const nav =
+        document.getElementById(
+            "nav-" + page
+        );
+
+    if(nav){
+        nav.classList.add("active");
+    }
+
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+}
+
+
+
+/* =====================================
+   股票資料
+===================================== */
+
+const stockData = {
+
+    "2330":{
+        code:"2330",
+        name:"台積電",
+        price:"1,035",
+        change:"+15",
+        percent:"+1.47%",
+        direction:"up"
+    },
+
+    "2454":{
+        code:"2454",
+        name:"聯發科",
+        price:"1,215",
+        change:"+25",
+        percent:"+2.10%",
+        direction:"up"
+    },
+
+    "2610":{
+        code:"2610",
+        name:"華航",
+        price:"20.80",
+        change:"-0.25",
+        percent:"-1.19%",
+        direction:"down"
+    },
+
+    "2303":{
+        code:"2303",
+        name:"聯電",
+        price:"53.80",
+        change:"+0.60",
+        percent:"+1.13%",
+        direction:"up"
+    }
+
+};
+
+
+
+function openStock(code){
+
+    const stock =
+        stockData[code]
+        || stockData["2330"];
+
+
+    document.getElementById(
+        "stockCode"
+    ).textContent = stock.code;
+
+
+    document.getElementById(
+        "stockName"
+    ).textContent = stock.name;
+
+
+    document.getElementById(
+        "stockPrice"
+    ).textContent = stock.price;
+
+
+    const change =
+        document.getElementById(
+            "stockChange"
+        );
+
+
+    change.innerHTML =
+        stock.change +
+        "<br>" +
+        stock.percent +
+        (stock.direction === "up"
+            ? " ▲"
+            : " ▼");
+
+
+    change.className =
+        "change " +
+        stock.direction;
+
+
+    goPage("stock");
+}
+
+
+
+/* =====================================
+   搜尋
+===================================== */
+
+function searchStock(){
+
+    const input =
+        document.getElementById(
+            "searchInput"
+        );
+
+
+    const code =
+        input.value
+            .trim()
+            .replace(/\s/g,"");
+
+
+    if(!code){
+
+        alert("請輸入股票代號");
+
+        return;
+    }
+
+
+    openStock(code);
+}
+
+
+
+/* =====================================
+   快速選股
+===================================== */
+
+function runScreening(){
+
+    const period =
+        document.getElementById(
+            "period"
+        ).value;
+
+
+    const logic =
+        document.getElementById(
+            "logic"
+        ).value;
+
+
+    document.getElementById(
+        "resultSummary"
+    ).textContent =
+        "近 " +
+        period +
+        " 週・" +
+        logic;
+
+
+    goPage("results");
+}
+
+
+
+/* =====================================
+   Enter 搜尋
+===================================== */
+
+document
+    .getElementById("searchInput")
+    .addEventListener(
+        "keydown",
+        function(event){
+
+            if(event.key === "Enter"){
+
+                searchStock();
+
+            }
+
+        }
+    );
+
+
+
+/* =====================================
+   Service Worker
+===================================== */
+
+if(
+    "serviceWorker" in navigator
+){
+
+    window.addEventListener(
+        "load",
+        () => {
+
+            navigator.serviceWorker
+                .register("sw.js")
+                .catch(
+                    () => {}
+                );
+
+        }
+    );
+
+}
+
+</script>
+
+</body>
+</html>
