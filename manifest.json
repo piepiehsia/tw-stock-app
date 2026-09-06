@@ -1,0 +1,18 @@
+{
+  "name": "台股選股分析V1.2",
+  "short_name": "台股選股",
+  "description": "台股技術面、籌碼面與融資融券快速選股工具",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F3F0EA",
+  "theme_color": "#A7A59B",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
